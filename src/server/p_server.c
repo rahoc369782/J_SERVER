@@ -1,16 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-/* Prototype required for server */
-int p_bind(int _soc, struct sockaddr *, int s_size);
-int p_list(int _soc, int backlog);
-int p_accpt();
-char *p_rec();
-short p_send();
-void convert_ip(unsigned char *addr, unsigned int net_byte);
+void test(void)
+{
+    printf("test function");
+}
 
 void convert_ip(unsigned char *addr, unsigned int net_byte)
 {
@@ -28,6 +24,6 @@ int p_bind(int _soc, struct sockaddr *server, int s_size)
     int _bind = bind(_soc, (struct sockaddr *)&server, s_size);
     if (_bind < 0)
     {
-        return 
+        return 1;
     };
 }

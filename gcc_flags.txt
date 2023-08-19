@@ -1,0 +1,63 @@
+When compiling and linking source code to create a final binary executable, you often need to use various flags to control the compilation process, specify optimization levels, include libraries, and more. Here is a list of some important flags and their usage in typical scenarios:
+
+**Compilation Flags:**
+
+1. `-c`:
+   This flag tells the compiler to compile the source code into object files without linking. It's used to create intermediate object files that can be later linked to form the final binary.
+   Example: `gcc -c source.c -o object.o`
+
+2. `-std=<standard>`:
+   Specifies the language standard to be used during compilation. Common values include `c99`, `c11`, `c++98`, `c++11`, etc.
+   Example: `gcc -std=c99 source.c -o output`
+
+3. `-Wall -Wextra`:
+   Enables a range of warnings to be displayed during compilation, helping you catch potential issues in your code.
+   Example: `gcc -Wall -Wextra source.c -o output`
+
+4. `-I<path>`:
+   Specifies additional directories where header files can be found.
+   Example: `gcc -I./include source.c -o output`
+
+5. `-D<macro>`:
+   Defines a preprocessor macro. Equivalent to `#define` in your code.
+   Example: `gcc -DDEBUG source.c -o output`
+
+**Linking Flags:**
+
+1. `-o <output>`:
+   Specifies the name of the output binary or executable.
+   Example: `gcc source.o -o output`
+
+2. `-L<path>`:
+   Specifies additional directories where libraries can be found.
+   Example: `gcc source.o -o output -L./lib`
+
+3. `-l<library>`:
+   Links against a specified library (without the `lib` prefix and file extension).
+   Example: `gcc source.o -o output -lmath`
+
+4. `-static`:
+   Links libraries statically, resulting in a larger binary but no runtime library dependencies.
+   Example: `gcc source.o -o output -static`
+
+5. `-dynamic`:
+   Links libraries dynamically (default behavior), resulting in a smaller binary but runtime library dependencies.
+   Example: `gcc source.o -o output -dynamic`
+
+**Optimization Flags:**
+
+1. `-O0`, `-O1`, `-O2`, `-O3`:
+   Enable different levels of optimization. Higher levels increase optimization but may also increase compilation time.
+   Example: `gcc -O2 source.c -o output`
+
+2. `-Os`:
+   Optimize for size. This typically reduces the size of the binary.
+   Example: `gcc -Os source.c -o output`
+
+**Debugging Flags:**
+
+1. `-g`:
+   Embeds debugging information into the binary, allowing for source-level debugging.
+   Example: `gcc -g source.c -o output`
+
+These are just a few commonly used flags. Depending on your project's requirements and the tools you're using, you might encounter more flags for specific purposes. Always refer to your compiler's documentation for a comprehensive list of available flags and their meanings.
