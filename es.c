@@ -10,14 +10,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
 #ifdef _WIN32
 #include <Windows.h>
 #else
 #include <unistd.h>
 #endif
-
+void convert_ip(unsigned char *addr, unsigned int net_byte)
+{
+    unsigned char bytes[4];
+    bytes[0] = (net_byte >> 24) & 0xFF;
+    bytes[1] = (net_byte >> 16) & 0xFF;
+    bytes[2] = (net_byte >> 8) & 0xFF;
+    bytes[3] = net_byte & 0xFF;
+    printf("IP Address: %u.%u.%u.%u\n", bytes[0], bytes[1], bytes[2], bytes[3]);
+    addr = bytes;
+}
 int main(int argc, char **argv)
 {
     printf("%d , %s , %s", argc, argv[1], argv[2]);
@@ -47,11 +56,6 @@ int main(int argc, char **argv)
     server.sin_family = AF_INET;
     server.sin_port = PORT;
     // Set the IP address of the specific interface you want to listen on
-    if (inet_pton(AF_INET, "172.24.25.18", &server.sin_addr) <= 0)
-    {
-        printf("Invalid IP address");
-        exit(2);
-    };
 
     int _bind = bind(_soc, (struct sockaddr *)&server, sizeof(server));
     if (_bind < 0)

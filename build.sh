@@ -1,2 +1,3 @@
 clear
-make all
+make
+echo "Compiled successfully"
