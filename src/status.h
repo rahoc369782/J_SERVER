@@ -8,4 +8,5 @@
 #define ESOC 3
 #define ELIST 4
 
+#define ECLIENTFD 7
 #endif

@@ -1,10 +1,10 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "../../p_poll/p_poll.h"
+#include "../../utils/memory/p_memory.h"
 #include "../../config.h"
 
 void convert_ip(unsigned char *addr, unsigned int net_byte)
@@ -25,14 +25,14 @@ int p_soc()
     if (soc < 0)
     {
         perror("Failed to create socket");
-        soc = -1;
+        return soc;
     }
     return soc;
 }
 
 struct sockaddr_in *get_clientobj()
 {
-    struct sockaddr_in *client = malloc(sizeof(struct sockaddr_in));
+    struct sockaddr_in *client = pmalloc(sizeof(struct sockaddr_in));
     if (client == NULL)
     {
         perror("Failed to allocate memory for client object");
@@ -43,7 +43,7 @@ struct sockaddr_in *get_clientobj()
 
 struct sockaddr_in *get_serverobj()
 {
-    struct sockaddr_in *server = malloc(sizeof(struct sockaddr_in));
+    struct sockaddr_in *server = pmalloc(sizeof(struct sockaddr_in));
     if (server == NULL)
     {
         perror("Failed to allocate memory for server object");
@@ -98,7 +98,7 @@ int p_accept(int soc)
 
 int p_recv(int soc, char *buf)
 {
-    int bytes_read = recv(soc, buf, 20, 0);
+    int bytes_read = recv(soc, buf, MAX_BUFFER_SIZE, 0);
     if (bytes_read < 0)
     {
         perror("Failed to read f\n");
@@ -109,7 +109,7 @@ int p_recv(int soc, char *buf)
 
 int p_send(int soc, void *buf)
 {
-    int bytes_send = send(soc, (char *)buf, 20, 0);
+    int bytes_send = send(soc, (char *)buf, MAX_BUFFER_SIZE, 0);
     if (bytes_send < 0)
     {
         printf("Failed to send fd: %d\n", soc);
@@ -118,7 +118,7 @@ int p_send(int soc, void *buf)
     return bytes_send;
 }
 
-int initialize_server()
+int initialize_server(struct dependancy *depn)
 {
     int res = 0;
     int soc = 0;
@@ -165,11 +165,21 @@ int initialize_server()
         close(soc);
         return p_epollfd;
     }
-
+    printf("server soc %d\n", soc);
     res = update_pepoll_instance(p_epollfd, 1, soc);
     if (res < 0)
     {
         printf("Failed to update LISTENING SOCKET IN EPOLL instance %d\n", p_epollfd);
+        free(server);
+        close(soc);
+        close(p_epollfd);
+        return res;
+    }
+
+    // Updating clients sockets list in epoll
+    res = deploy_clients_epoll(p_epollfd, depn);
+    if (res < 0)
+    {
         free(server);
         close(soc);
         close(p_epollfd);

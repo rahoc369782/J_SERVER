@@ -1,3 +1,3 @@
 clear
-make
-echo "Compiled successfully"
+make fold
+make all

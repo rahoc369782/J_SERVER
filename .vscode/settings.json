@@ -4,6 +4,11 @@
         "p_server.h": "c",
         "status.h": "c",
         "config.h": "c",
-        "p_poll.h": "c"
+        "p_poll.h": "c",
+        "clients.h": "c",
+        "string.h": "c",
+        "pie.h": "c",
+        "h_usage.h": "c",
+        "p_memory.h": "c"
     }
 }
