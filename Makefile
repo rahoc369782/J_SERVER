@@ -1,15 +1,15 @@
 # List of source files
-FILES = ./build/utils/heap/h_usage.o ./build/utils/memory/memory.o ./build/c_client.o ./build/p_poll.o ./build/string.o ./build/p_server.o ./build/pie.o
+FILES = ./build/parser/parser.o ./build/utils/heap/h_usage.o ./build/utils/memory/memory.o ./build/c_client.o ./build/p_poll.o ./build/string.o ./build/p_server.o ./build/pie.o
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 # Default target
 all : pie
 
 # Compile the final executable
 pie : $(FILES)	
-	echo "Compiling main pie binary"
 	gcc -std=c99 $(FILES) -o ./bin/pie.bin
 
-
+./build/parser/parser.o : ./src/parser/parser.c
+	gcc -c -std=c99 ./src/parser/parser.c -o ./build/parser/parser.o
 # Compile h_usage.o
 ./build/utils/heap/h_usage.o : ./src/utils/heap_usage/h_usage.c
 	gcc -c -std=c99 ./src/utils/heap_usage/h_usage.c -o ./build/utils/heap/h_usage.o
@@ -40,7 +40,7 @@ pie : $(FILES)
 
 # Clean build directory
 clean : 
-	rm -rf ./build/*
+	rm -rf ${FILES}
 	cp -r ./bin ./binback
 	rm -rf ./bin/*
 

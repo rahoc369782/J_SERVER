@@ -6,6 +6,7 @@
 #include "status.h"
 #include "./utils/memory/p_memory.h"
 #include "pie.h"
+#include "parser/parser.h"
 #include "./utils/heap_usage/h_usage.h"
 
 int main(int args, char *agrv[])
@@ -15,6 +16,7 @@ int main(int args, char *agrv[])
         printf("Minimum three arguments expected");
         return -EARGS;
     }
+    parser_main();
     int pie_usage = initiate_pieh_calc();
     if (pie_usage < 0)
     {
