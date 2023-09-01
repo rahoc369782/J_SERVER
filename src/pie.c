@@ -11,7 +11,7 @@
 
 int main(int args, char *agrv[])
 {
-    if (args < 3)
+    if (args < 2)
     {
         printf("Minimum three arguments expected");
         return -EARGS;
