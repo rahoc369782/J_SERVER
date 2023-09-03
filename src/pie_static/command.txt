@@ -1,0 +1,2 @@
+code:S/name:SAVE/desc:Save command to store clients moments/err:INVALID/errcode:0/succ:SAVED/succode1/secure:y$
+A/AUTHORIZATION/Auth command to verify clients/AUTHORIZATION FAILED/0/VERIFIED/1/n$

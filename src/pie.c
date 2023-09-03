@@ -8,6 +8,7 @@
 #include "pie.h"
 #include "parser/parser.h"
 #include "./utils/heap_usage/h_usage.h"
+#include "./parser/parser.h"
 
 int main(int args, char *agrv[])
 {
@@ -15,7 +16,7 @@ int main(int args, char *agrv[])
     {
         printf("Minimum three arguments expected");
         return -EARGS;
-    }
+    };
     parser_main();
     int pie_usage = initiate_pieh_calc();
     if (pie_usage < 0)
@@ -30,7 +31,7 @@ int main(int args, char *agrv[])
     if (clients == NULL)
     {
         printf("Third party clients connections are not created. Something went wrong.\n");
-        return -PIE_OK;
+        return PIE_OK - 1;
     }
     depn->c_conn = clients;
 

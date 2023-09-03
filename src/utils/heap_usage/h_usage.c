@@ -19,6 +19,7 @@ h_usage *pie_h;
 
 void add_alloc(size_t size)
 {
+    printf("s added is %ld\n", size);
     pie_h->alloc += size;
     printf("size is %ld\n", pie_h->alloc);
     return;
@@ -32,6 +33,9 @@ int initiate_pieh_calc()
 {
     printf("called i \n");
     pie_h = malloc(sizeof(h_usage));
+    pie_h->alloc = 0;
+    pie_h->dead_obje = 0;
+    pie_h->live_obje = 0;
     if (pie_h == NULL)
     {
         return -EHCALC;

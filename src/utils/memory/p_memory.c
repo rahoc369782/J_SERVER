@@ -5,7 +5,7 @@
 void *pmalloc(size_t size)
 {
     void *ptr = malloc(size);
-    add_alloc(size);
+    // add_alloc(size);
     return ptr;
 }
 

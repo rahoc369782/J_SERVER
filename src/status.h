@@ -2,11 +2,11 @@
 #define STATUS_H
 
 #define PIE_OK 0
-#define EARGS 1
-
+#define EARGS 2
+#define EIO 3 
 #define EBIND 2
-#define ESOC 3
 #define ELIST 4
 
+#define CMD_FILE 5
 #define ECLIENTFD 7
 #endif
