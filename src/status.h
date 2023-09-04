@@ -9,4 +9,5 @@
 
 #define CMD_FILE 5
 #define ECLIENTFD 7
+#define EINMEM 8
 #endif

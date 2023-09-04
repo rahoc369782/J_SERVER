@@ -1,8 +1,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-#define CMD_CONFIG "./src/pie_static/command.txt"
-#define FILE_BUF_SIZE 1050
+#define CMD_CONFIG "src/pie_static/command.txt"
+#define FILE_BUF_SIZE 10 //  For adding null terminoator manually
 #define MAX_COMMAND_HASHTABLE_SIZE 5
 
 struct command

@@ -15,18 +15,28 @@
  
 struct commands_colle *cmds;
 
-struct inprogress_parsing 
+static struct inprogress_parsing 
 {
     struct command* command;
-    char status;
+    char last_chunk[FILE_BUF_SIZE];
+    short is_started;
 };
+
 
 static int generate_hash_for_commands_hash(char code)
 {
     int partone = code & (code - 32);
-
     printf("hash %d is %d\n",partone,partone % MAX_COMMAND_HASHTABLE_SIZE);
     return partone % MAX_COMMAND_HASHTABLE_SIZE;
+}
+
+static void parse_pair(struct inprogress_parsing *track_parsing) {
+    printf("Received key-value is %s\n",track_parsing->last_chunk);
+}
+
+static struct command* generate_new_command() {
+    struct command *command = pmalloc(sizeof(struct command));
+    return command;
 }
 
 static void set_commandin_collection(struct command *command)
@@ -58,7 +68,7 @@ out:
     return res;
 }
 
-static void command_reader(char *f_chunk)
+static int command_reader(char *f_chunk,struct inprogress_parsing* track_parsing)
 {
     /*
        Responsibility : Function is responsible for processing received chunks into valuable
@@ -68,26 +78,54 @@ static void command_reader(char *f_chunk)
        structure.
    */
     
-    /*
-       Process bytes
-    */
     int pos = 0;
     int l_pos = 0;
     
-    char local_buf[FILE_BUF_SIZE];
+    // char local_buf[FILE_BUF_SIZE];
 
-    while (f_chunk > 0)
+    // Pass local buffer which is upto key value pair which we found till encounter '/'
+    // Either it will pass bytes we have read.
+    printf("received chunk is %s\n",f_chunk);
+    while (f_chunk[pos] != '\0')
     {
-        if (f_chunk[pos] == '/')
+        // Check for is new command parsing started with '{' character
+        if (f_chunk[pos] == 123)
         {
-            printf("first / encountered at %d = ", pos);
-            printf("%s\n", local_buf);
-            memset(local_buf, 0, sizeof(local_buf));
+            // Command is ended we need to switch previous tracking parsing command struct with new in progress command struct
+            struct command *new_command = generate_new_command();
+            if(!new_command)
+            {
+                return -EINMEM;
+            }
+
+            // Set last chunk to empty because we have completed current command parsing.
+            memset(track_parsing->last_chunk, 0, sizeof(FILE_BUF_SIZE));
+            track_parsing->command = new_command;
+            pos++;
+            continue;
+        }
+
+        // Check for is command parsing ended with '}' character
+        if (f_chunk[pos] == 125)
+        {
+            continue;
+        }
+
+        // Check for key value pair which is ending with ','. If encounter ',' then simply pass to parse_pair()
+        // for parsing and setting in WIP command struct.
+        if (f_chunk[pos] == 44)
+        {
+
+            // Calling for parsing last_chunk key-value pair and setting in new generated command struct.
+            parse_pair(track_parsing);
+
+            // Set last chunk to empty because we have detected entire key value and completed its parsing.
+            memset(track_parsing->last_chunk, 0, sizeof(FILE_BUF_SIZE));
             pos++;
             l_pos = 0;  
             continue;
         }
-        local_buf[l_pos] = f_chunk[pos];
+        track_parsing->last_chunk[l_pos] = f_chunk[pos];
         pos++;
         l_pos++;
     }
@@ -110,22 +148,20 @@ int commands_parser()
         Looping through it for reading in and parsing it in chunks.
     */
     initiate_global_commands_collection();
-    struct command *cmd = pmalloc(sizeof(struct command));
-    cmd->code = 'S';
-    struct command *cmd2 = pmalloc(sizeof(struct command));
-    cmd2->code = 'A';
-    struct command *cmd3 = pmalloc(sizeof(struct command));
-    cmd3->code = 'F';
-    struct command *cmd4 = pmalloc(sizeof(struct command));
-    cmd4->code = 'D';
-    set_commandin_collection(cmd4);
-    set_commandin_collection(cmd3);
-    set_commandin_collection(cmd);
-    set_commandin_collection(cmd2);
-    set_commandin_collection(cmd2);
-    printf("set command is %c", cmds->commands[4]->code);
-    ssize_t bytes; // Number of bytes read
-    while (1)
+    // struct command *cmd = pmalloc(sizeof(struct command));
+    // cmd->code = 'S';
+    // set_commandin_collection(cmd);
+ 
+
+    // Global declaration for tracking parsing propely
+    struct inprogress_parsing *track_parsing;
+    track_parsing = pmalloc(sizeof(struct inprogress_parsing));
+    if(!track_parsing)
+    {
+        return -EINMEM;
+    }
+    ssize_t bytes = 1; // Number of bytes read
+    while (bytes > 0)
     {
         char chunk_buf[FILE_BUF_SIZE]; // Buffer to store read data
         bytes = read(cmd_fd, chunk_buf, FILE_BUF_SIZE);
@@ -150,8 +186,8 @@ int commands_parser()
         /*
             If data is available to process just process it with below function.
         */
-        // command_reader(chunk_buf);
-        printf("Read %zd bytes from the file:\n%s\n", bytes, chunk_buf);
+        // chunk_buf[FILE_BUF_SIZE] = 0;
+        command_reader(chunk_buf,track_parsing);
     }
     // Close the file
     close(cmd_fd);
