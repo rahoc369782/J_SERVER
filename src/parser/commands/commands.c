@@ -1,6 +1,7 @@
 #include "commands.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
@@ -12,29 +13,56 @@
     Gloabl command collection lookup table pointer.
     Contains all PIE's commands in which is parsed from cmmands.txt.
 */
- 
+
 struct commands_colle *cmds;
 
-static struct inprogress_parsing 
+static struct inprogress_parsing
 {
-    struct command* command;
-    char last_chunk[FILE_BUF_SIZE];
-    short is_started;
+    struct command *command;
+    char last_chunk[FILE_BUF_SIZE_LOCAL];
+    int last_pos_in_chunk;
+    char last_char;
 };
 
+// struct which defines type of node , value in commands for better debugging of syntex and as well as
+// for better parsing.
 
+struct parsed_node
+{
+    unsigned short type;
+    char *value;
+    struct parsed_node *next;
+    struct parsed_node *prev;
+};
+
+static struct parser_tokens
+{
+    char *tokens[];
+};
+
+static void free_all_memory_notinused()
+{
+    // Free unecessary memory which work is done.
+}
 static int generate_hash_for_commands_hash(char code)
 {
-    int partone = code & (code - 32);
-    printf("hash %d is %d\n",partone,partone % MAX_COMMAND_HASHTABLE_SIZE);
-    return partone % MAX_COMMAND_HASHTABLE_SIZE;
+    int partone = 0;
+    for (int i = 0; i < code; i++)
+    {
+        partone += i;
+    }
+    partone = partone >> 2;
+    printf("hash %d is %d\n", partone, partone % MAX_TOKENS);
+    return partone % MAX_TOKENS;
 }
 
-static void parse_pair(struct inprogress_parsing *track_parsing) {
-    printf("Received key-value is %s\n",track_parsing->last_chunk);
+static void parse_pair(struct inprogress_parsing *track_parsing)
+{
+    printf("Received key-value is %s and struct is %p\n", track_parsing->last_chunk, track_parsing->command);
 }
 
-static struct command* generate_new_command() {
+static struct command *generate_new_command()
+{
     struct command *command = pmalloc(sizeof(struct command));
     return command;
 }
@@ -51,24 +79,25 @@ static int initiate_global_commands_collection()
     int res = EIO;
     cmds = 0;
     cmds = pmalloc(sizeof(struct commands_colle));
-    if(cmds == NULL) {
+    if (cmds == NULL)
+    {
         res = -EIO;
         goto out;
     }
     struct command **commands_arr = pmalloc(MAX_COMMAND_HASHTABLE_SIZE * sizeof(struct command));
-    if(commands_arr == NULL)
+    if (commands_arr == NULL)
     {
         res = -EIO;
         goto out;
     }
     cmds->commands = commands_arr;
-    memset(cmds->commands,0x00,MAX_COMMAND_HASHTABLE_SIZE * sizeof(cmds->commands));
+    memset(cmds->commands, 0x00, MAX_COMMAND_HASHTABLE_SIZE * sizeof(cmds->commands));
     return res;
 out:
     return res;
 }
 
-static int command_reader(char *f_chunk,struct inprogress_parsing* track_parsing)
+static int command_reader(char *f_chunk, struct inprogress_parsing *track_parsing)
 {
     /*
        Responsibility : Function is responsible for processing received chunks into valuable
@@ -77,65 +106,76 @@ static int command_reader(char *f_chunk,struct inprogress_parsing* track_parsing
        This read chunks and generate new structures for each command also store it in commands_colle
        structure.
    */
-    
+
     int pos = 0;
-    int l_pos = 0;
-    
-    // char local_buf[FILE_BUF_SIZE];
 
     // Pass local buffer which is upto key value pair which we found till encounter '/'
     // Either it will pass bytes we have read.
-    printf("received chunk is %s\n",f_chunk);
+    // printf("received chunk is %s and previous is %s and p is %p\n",f_chunk , track_parsing->last_chunk, track_parsing->command);
     while (f_chunk[pos] != '\0')
     {
         // Check for is new command parsing started with '{' character
-        if (f_chunk[pos] == 123)
+        if (f_chunk[pos] == '{')
         {
             // Command is ended we need to switch previous tracking parsing command struct with new in progress command struct
             struct command *new_command = generate_new_command();
-            if(!new_command)
+            if (!new_command)
             {
                 return -EINMEM;
             }
 
             // Set last chunk to empty because we have completed current command parsing.
-            memset(track_parsing->last_chunk, 0, sizeof(FILE_BUF_SIZE));
+            memset(track_parsing->last_chunk, 0, FILE_BUF_SIZE_LOCAL);
             track_parsing->command = new_command;
+            track_parsing->last_pos_in_chunk = 0;
             pos++;
             continue;
         }
 
         // Check for is command parsing ended with '}' character
-        if (f_chunk[pos] == 125)
+        if (f_chunk[pos] == '}')
         {
+            pos++;
+            continue;
+        }
+
+        // Check for empty space and line terminator if found then remove it.
+
+        if (f_chunk[pos] == 10)
+        {
+            pos++;
             continue;
         }
 
         // Check for key value pair which is ending with ','. If encounter ',' then simply pass to parse_pair()
         // for parsing and setting in WIP command struct.
-        if (f_chunk[pos] == 44)
+        if (f_chunk[pos] == ',')
         {
+            // printf("sent chunk is %s\n",track_parsing->last_chunk);
+            track_parsing->last_chunk[track_parsing->last_pos_in_chunk + 1] = 0;
 
             // Calling for parsing last_chunk key-value pair and setting in new generated command struct.
             parse_pair(track_parsing);
 
             // Set last chunk to empty because we have detected entire key value and completed its parsing.
-            memset(track_parsing->last_chunk, 0, sizeof(FILE_BUF_SIZE));
+            memset(track_parsing->last_chunk, 0, FILE_BUF_SIZE_LOCAL);
             pos++;
-            l_pos = 0;  
+            track_parsing->last_pos_in_chunk = 0;
             continue;
         }
-        track_parsing->last_chunk[l_pos] = f_chunk[pos];
+        track_parsing->last_chunk[track_parsing->last_pos_in_chunk] = f_chunk[pos];
         pos++;
-        l_pos++;
+        track_parsing->last_pos_in_chunk++;
     }
 }
 
 int commands_parser()
 {
-
+    char tokens[MAX_TOKENS] = {'{', '}', ':', ',', '|'};
+    struct parser_tokens *tokens_table = pmalloc(sizeof(struct parser_tokens));
+    tokens_table->tokens = tokens;
     int cmd_fd = open(CMD_CONFIG, O_RDONLY);
-    
+
     // Exit process if we failed to read CMD config file
     if (cmd_fd < 0)
     {
@@ -151,12 +191,11 @@ int commands_parser()
     // struct command *cmd = pmalloc(sizeof(struct command));
     // cmd->code = 'S';
     // set_commandin_collection(cmd);
- 
 
     // Global declaration for tracking parsing propely
     struct inprogress_parsing *track_parsing;
     track_parsing = pmalloc(sizeof(struct inprogress_parsing));
-    if(!track_parsing)
+    if (!track_parsing)
     {
         return -EINMEM;
     }
@@ -187,7 +226,7 @@ int commands_parser()
             If data is available to process just process it with below function.
         */
         // chunk_buf[FILE_BUF_SIZE] = 0;
-        command_reader(chunk_buf,track_parsing);
+        command_reader(chunk_buf, track_parsing);
     }
     // Close the file
     close(cmd_fd);
