@@ -1,5 +1,5 @@
 # List of source files
-FILES = ./build/parser/commands/commands_new.o ./build/parser/commands/commands.o ./build/parser/parser.o ./build/utils/common/customstring.o ./build/utils/heap/h_usage.o ./build/utils/memory/memory.o ./build/c_client.o ./build/p_poll.o ./build/string.o ./build/p_server.o ./build/pie.o
+FILES = ./build/parser/commands/commands_new.o  ./build/parser/parser.o ./build/utils/common/customstring.o ./build/utils/heap/h_usage.o ./build/utils/memory/memory.o ./build/c_client.o ./build/p_poll.o ./build/string.o ./build/p_server.o ./build/pie.o
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 # Default target
 all : pie
@@ -7,7 +7,6 @@ all : pie
 # Compile the final executable
 pie : $(FILES)	
 	gcc -std=c99 $(FILES) -o ./bin/pie.bin
-
 
 ./build/parser/commands/commands_new.o : ./src/parser/commands/commands_new.c
 	gcc -c -std=c99 ./src/parser/commands/commands_new.c -o ./build/parser/commands/commands_new.o

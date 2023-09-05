@@ -3,7 +3,7 @@
 
 #define PIE_OK 0
 #define EARGS 2
-#define EIO 3 
+#define EIO 0X00
 #define EBIND 2
 #define ELIST 4
 

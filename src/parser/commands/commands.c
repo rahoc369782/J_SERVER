@@ -24,20 +24,10 @@ static struct inprogress_parsing
     char last_char;
 };
 
-// struct which defines type of node , value in commands for better debugging of syntex and as well as
-// for better parsing.
-
-struct parsed_node
-{
-    unsigned short type;
-    char *value;
-    struct parsed_node *next;
-    struct parsed_node *prev;
-};
 
 static struct parser_tokens
 {
-    char *tokens[];
+    char *tokens;
 };
 
 static void free_all_memory_notinused()

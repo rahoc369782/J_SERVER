@@ -2,15 +2,16 @@
 #define COMMANDS_H
 
 #define CMD_CONFIG "src/pie_static/command.txt"
-#define FILE_BUF_SIZE 1024
+#define FILE_BUF_SIZE 100
 #define MAX_TOKENS 10
 #define FILE_BUF_SIZE_LOCAL (FILE_BUF_SIZE * 10)
 
-#define MAX_COMMAND_HASHTABLE_SIZE 5
+#define MAX_COMMAND_HASHTABLE_SIZE 10
+#define CURRENT_COMMAND_COUNT_SIZE 5
 
-#define NODE_TYPE_SPECIAL  0x0001
-#define NODE_TYPE_KEY      0X0010
-#define NODE_TYPE_VALUE    0x0011
+#define NODE_TYPE_SPECIAL_TOKEN  0x0001
+#define NODE_TYPE_VALUE          0X0002
+#define NODE_TYPE_VALUE2         0x0011
 
 struct command
 {
@@ -29,6 +30,12 @@ struct commands_colle
 {
     struct command **commands;
     int obj_counts;
+};
+
+struct syntax_status
+{
+    short code;
+    char* msg;
 };
 
 int commands_parser();

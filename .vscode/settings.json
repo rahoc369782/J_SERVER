@@ -11,6 +11,7 @@
     "h_usage.h": "c",
     "p_memory.h": "c",
     "commands.h": "c",
-    "parser.h": "c"
+    "parser.h": "c",
+    "commands_new.h": "c"
   }
 }

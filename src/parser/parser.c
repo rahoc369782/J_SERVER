@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "parser.h"
-#include "./commands/commands.h"
+#include "./commands/commands_new.h"
 
 /*
 
