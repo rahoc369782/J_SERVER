@@ -1,1 +1,61 @@
-Which one is better for checking syntax in parsing.
+*************************************** TOKENIZATION PROCESS ***********************************************
+
+- Tokenization process. Process and tokenize each every string before encountering special symbols mentioned
+  in symbol table as well as every symbolic token encountered. 
+
+- So that we will have all tokens encountered from files read in sequential manner.
+
+- Token Defination for PIE parser :
+  - [ -> Open sqaure bracket
+  - ] -> Closing square bracket
+  - { -> Opening curly bracket
+  - } -> Closing curly bracket
+  - : -> Divider 
+  - _ -> Space
+  - ' -> Single quaotes
+  - \n -> New line char
+
+
+*************************************** SYNTAX AND GRAMMER VALIDATION *************************************** 
+
+- Syntax and grammer checking with define rules. Also data conversion into valuable and meaningful structs.
+
+- Syntax and grammer defination :
+  - text_key :
+    - " "text":"
+    - [space text devider]
+
+  - text_value :
+    - ":"text" "
+    - [devider text space]
+
+  - Pair : 
+    - " "text_key":"text_value" " 
+    - [space text_key devider text_value space]
+
+  - Object :
+    - "{"" "Pair" ""}"
+    - [open_curly space {Pair} space close_curly]
+
+  - Start
+    - "[""\n"Object""\n"]"
+    - [open_square line_break {Object} line_break close_square]
+
+  - Initiate
+    - ""
+    - [ FIRST BYTE SHOULD BE "[" ]
+
+- Space rules :
+  - Avoid : 
+     if outside and inside of []
+  - Considered :
+     if inside {}
+
+
+- New line rules : 
+  - Avoid :
+    - Outside of []
+    - Inside of {}
+  - Considered
+    - Inside of []
+

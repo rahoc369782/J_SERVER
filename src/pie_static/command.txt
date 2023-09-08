@@ -1,2 +1,4 @@
-{code:S,name:SAVE,desc:Save command to store clients moments.,err:INVALID,errcode:0,succ:SAVED,succode:1,secure:y}
-{code:A,name:AUTHORIZATION,desc:Auth command to verify clients,err:AUTHORIZATION FAILED,errcode:0,succ:VERIFIED,succode:1,secure:n}
+[
+    { code:S name:SAVE desc:Save command to store clients moments. err:INVALID errcode:0 succ:SAVED succode:1 secure:y }
+    { code:A name:AUTHORIZATION desc:Auth command to verify clients err:AUTHORIZATION FAILED errcode:0 succ:VERIFIED succode:1 secure:n }
+]

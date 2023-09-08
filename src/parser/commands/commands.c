@@ -102,6 +102,7 @@ static int command_reader(char *f_chunk, struct inprogress_parsing *track_parsin
     // Pass local buffer which is upto key value pair which we found till encounter '/'
     // Either it will pass bytes we have read.
     // printf("received chunk is %s and previous is %s and p is %p\n",f_chunk , track_parsing->last_chunk, track_parsing->command);
+   
     while (f_chunk[pos] != '\0')
     {
         // Check for is new command parsing started with '{' character

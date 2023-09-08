@@ -12,6 +12,7 @@
     "p_memory.h": "c",
     "commands.h": "c",
     "parser.h": "c",
-    "commands_new.h": "c"
+    "commands_new.h": "c",
+    "customstring.h": "c"
   }
 }

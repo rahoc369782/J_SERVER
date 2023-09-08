@@ -161,7 +161,7 @@ static struct parser_tokens *initiate_tokens_structs()
         printf("Error while allocating memory for token table\n");
         return -EIO;
     }
-    tokens = "{},:|";
+    tokens = "{},:| ";
     // Memory allocated for tokens table.
     struct parser_tokens *tokens_table = pmalloc(sizeof(struct parser_tokens));
     if (!tokens_table)
@@ -215,12 +215,12 @@ static int command_reader(char *f_chunk, struct inprogress_parsing *track_parsin
     int pos = 0;
 
     // Pass local buffer which is upto key value pair which we found till encounter '/'
-    // Either it will pass bytes we have read.
+    // Either it will pass bytes we have read. 
     // printf("received chunk is %s and previous is %s and p is %p\n",f_chunk , track_parsing->last_chunk, track_parsing->command);
     while (f_chunk[pos] != '\0')
     {
 
-        if(f_chunk[pos] == 10 || f_chunk[pos] == 32)
+        if(f_chunk[pos] == 9)
         {
             pos++;
             continue;
