@@ -14,6 +14,7 @@
   - _ -> Space
   - ' -> Single quaotes
   - \n -> New line char
+  - NULL -> NULL token
 
 
 *************************************** SYNTAX AND GRAMMER VALIDATION *************************************** 

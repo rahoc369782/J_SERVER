@@ -1,4 +1,4 @@
-#include "commands_new.h"
+#include "tokenization.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,6 +7,9 @@
 #include "../../status.h"
 #include "../../utils/memory/p_memory.h"
 #include "../../utils/common/customstring.h"
+#include "../../parser/grammer/grammer.h"
+#include "../../parser/symboltable/symboltable.h"
+#include "../../parser/parser_config.h"
 
 struct commands_colle *cmds;
 
@@ -22,43 +25,27 @@ static struct parser_tokens
     char *tokens;
 };
 
-// struct which defines type of node , value in commands for better debugging of syntex and as well as
-// for better parsing.
-
-struct parsed_list
+unsigned int hash(const char key)
 {
-    struct parsed_node *head;
-    struct parsed_node *tail;
-    int length;
-};
-
-struct parsed_node
-{
-    unsigned short type;
-    char *value;
-    struct parsed_node *next;
-    struct parsed_node *prev;
-};
-
-unsigned int hash(const char key) {
     unsigned int hash_value = 0;
-    char k[5] = {key,0,0,0,0};
+    char k[5] = {key, 0, 0, 0, 0};
     for (int i = 0; i < 5; i++)
     {
         k[i] = key + i;
     }
     char j;
     char m;
-    for (int i = 0; i < 5; i++) {
-        if(i == 2)
+    for (int i = 0; i < 5; i++)
+    {
+        if (i == 2)
         {
             j = k[i] << 3;
         }
-        if(i == 3)
+        if (i == 3)
         {
             m = k[i] << 2;
         }
-        hash_value = hash_value +  k[i] + j; // Bit manipulation and addition
+        hash_value = hash_value + k[i] + j; // Bit manipulation and addition
     }
     return hash_value % MAX_COMMAND_HASHTABLE_SIZE; // Modulus to fit within the table size
 }
@@ -74,7 +61,7 @@ void loop_the_parsed_list(struct parsed_list *parsed_list)
     struct parsed_node *curr_node = parsed_list->head;
     while (curr_node != NULL)
     {
-        printf("type is %d and value is %s\n", curr_node->type, curr_node->value);
+        printf("type is %d and value is %ld\n", curr_node->type, sizeof(curr_node->value));
         curr_node = curr_node->next;
     }
 }
@@ -88,6 +75,11 @@ int generate_node_for_tokens(char *token, unsigned short type, struct parsed_lis
     }
     size_t len = strlen(token);
 
+    if (len <= 0)
+    {
+        return 1;
+    }
+
     // Allocate memory for the copy, including space for the null-terminator
     char *_token = (char *)pmalloc(len + 1);
 
@@ -99,6 +91,7 @@ int generate_node_for_tokens(char *token, unsigned short type, struct parsed_lis
     node->value = _token;
     node->next = 0x00;
     node->prev = 0x00;
+    node->pos = parsed_list->length + 1;
 
     // Add node to last (tail) of parsed list for maintaning sequence of parsed tokens.
     // If it is first token or node in process.
@@ -119,13 +112,35 @@ int generate_node_for_tokens(char *token, unsigned short type, struct parsed_lis
 
 int check_token_insymbol_table(struct parser_tokens *token_table, char s)
 {
-    for (size_t i = 0; i < MAX_TOKENS; i++)
+    // Symbols which we required for grammer validation.
+    char symbolArray[] = {
+        LEFT_SQUARE_BRACKET,
+        LEFT_CURLY_BRACE,
+        COMMA_CHARACTER,
+        COLON_CHARACTER,
+        SPACE_CHARACTER,
+        NEWLINE_CHARACTER,
+        RIGHT_CURLY_BRACE,
+        RIGHT_SQUARE_BRACKET,
+        TYPE_CHUNK_HEX,
+        TYPE_VALUE_HEX};
+
+    // for (size_t i = 0; i < MAX_TOKENS; i++)
+    // {
+    //     if (token_table->tokens[i] == s)
+    //     {
+    //         return token_table->tokens[i];
+    //     }
+    // };
+
+    for (size_t i = 0; i < TOKENS_COUNT; i++)
     {
-        if (token_table->tokens[i] == s)
+        if (symbolArray[i] == s)
         {
-            return token_table->tokens[i];
+            return symbolArray[i];
         }
     };
+
     return 0;
 }
 
@@ -152,7 +167,7 @@ static int initiate_global_commands_collection()
 out:
     return res;
 }
-
+/*
 static struct parser_tokens *initiate_tokens_structs()
 {
     char *tokens = pmalloc(MAX_TOKENS);
@@ -161,7 +176,19 @@ static struct parser_tokens *initiate_tokens_structs()
         printf("Error while allocating memory for token table\n");
         return -EIO;
     }
-    tokens = "{},:| ";
+    // tokens = "[]{},:| ";
+
+    tokens = {
+        LEFT_SQUARE_BRACKET,
+        LEFT_CURLY_BRACE,
+        COMMA_CHARACTER,
+        COLON_CHARACTER,
+        SPACE_CHARACTER,
+        NEWLINE_CHARACTER,
+        RIGHT_CURLY_BRACE,
+        RIGHT_SQUARE_BRACKET,
+        TYPE_CHUNK_HEX,
+        TYPE_VALUE_HEX};
     // Memory allocated for tokens table.
     struct parser_tokens *tokens_table = pmalloc(sizeof(struct parser_tokens));
     if (!tokens_table)
@@ -172,6 +199,21 @@ static struct parser_tokens *initiate_tokens_structs()
 
     tokens_table->tokens = tokens;
     return tokens_table;
+}
+*/
+
+static void destroy_parsedlist_struct(struct parsed_list *parsed_list)
+{
+    struct parsed_node *curr_node = parsed_list->head;
+    while (curr_node != NULL)
+    {
+        struct parsed_node *next_node = curr_node->next; // Store the next node
+        free(curr_node);                                 // Free the current node
+        curr_node = next_node;                           // Move to the next node
+    }
+    // free(parsed_list->tail);  // You may or may not need to free the tail node
+    parsed_list->head = NULL; // Make sure to update the list's head to NULL
+    parsed_list->tail = NULL; // Make sure to update the list's tail to NULL
 }
 
 static struct parsed_list *initiate_parsedlist_struct()
@@ -185,6 +227,7 @@ static struct parsed_list *initiate_parsedlist_struct()
     }
 
     parsed_list->head = 0x00;
+    parsed_list->tail = 0x00;
     parsed_list->length = 0;
     return parsed_list;
 }
@@ -198,9 +241,17 @@ static struct syntax_status *check_syntax_validation(struct parsed_list *parsed_
     }
 
     // Start checking the parsed list of tokens
-
-
 }
+
+/*
+    static int context_checker(char byte, struct token_stack *token_stack)
+    {
+        // Check last element and pass through below rules for checking context whether we need to consider byte param or not
+        // int is_present = check_token_incontext_table(char type, char s);
+        // return is_present;
+    }
+
+*/
 
 static int command_reader(char *f_chunk, struct inprogress_parsing *track_parsing, struct parser_tokens *parser_tokens, struct parsed_list *parsed_list)
 {
@@ -215,16 +266,17 @@ static int command_reader(char *f_chunk, struct inprogress_parsing *track_parsin
     int pos = 0;
 
     // Pass local buffer which is upto key value pair which we found till encounter '/'
-    // Either it will pass bytes we have read. 
+    // Either it will pass bytes we have read.
     // printf("received chunk is %s and previous is %s and p is %p\n",f_chunk , track_parsing->last_chunk, track_parsing->command);
+
     while (f_chunk[pos] != '\0')
     {
 
-        if(f_chunk[pos] == 9)
-        {
-            pos++;
-            continue;
-        }
+        // if (f_chunk[pos] == 9)
+        // {
+        //     pos++;
+        //     continue;
+        // }
 
         // Check if special token found then we have to break it down.
         int token = check_token_insymbol_table(parser_tokens, f_chunk[pos]);
@@ -234,7 +286,8 @@ static int command_reader(char *f_chunk, struct inprogress_parsing *track_parsin
         if (token)
         {
             // Token encounter. Need to generate node for last chunk generated first before token encounter.
-            int n_token_node_generated = generate_node_for_tokens(track_parsing->last_chunk, (unsigned short)NODE_TYPE_VALUE, parsed_list);
+
+            int n_token_node_generated = generate_node_for_tokens(track_parsing->last_chunk, (unsigned short)TYPE_CHUNK_HEX, parsed_list);
             if (!n_token_node_generated)
             {
                 printf("Failed to create node for parsed tokens\n");
@@ -243,7 +296,7 @@ static int command_reader(char *f_chunk, struct inprogress_parsing *track_parsin
 
             // Generate token for special encountered token.
             char token_enc = f_chunk[pos];
-            int s_token_node_generated = generate_node_for_tokens((char *)&token, (unsigned short)NODE_TYPE_SPECIAL_TOKEN, parsed_list);
+            int s_token_node_generated = generate_node_for_tokens((char *)&token, (unsigned short)token, parsed_list);
             if (!s_token_node_generated)
             {
                 printf("Failed to create node for parsed tokens\n");
@@ -262,11 +315,25 @@ static int command_reader(char *f_chunk, struct inprogress_parsing *track_parsin
                 can generate command struct from it.
 
             */
-            if (token == 125)
+            if (token == RIGHT_CURLY_BRACE)
             {
                 // Stop here and go for syntax checking for parsed list.
-                struct syntax_status *syntax = check_syntax_validation(parsed_list);
+                struct parsed_node *_validation = init_grammer_validation(parsed_list);
+                if (_validation)
+                {
+                    printf("Unexpacted token at %d , %s\n", _validation->pos, _validation->value);
+                    exit(1);
+                }
 
+                // If _validation returns NULL pointer means it is indicating that it does not encounter any grammer erros.
+                // So that we can process next object. GO ahead*.
+
+                // Destroy existing parsed list for new generating tokens. We have track of higher level char in used which we have
+                // track through our global stack.
+                // BUt don't assing 0 lenght to parsed list length because we want it to represent actual position of token in which
+                // error happened.
+
+                destroy_parsedlist_struct(parsed_list);
             }
             continue;
         }
@@ -291,7 +358,11 @@ int commands_parser()
     }
 
     // Initiating required parsers.
-    struct parser_tokens *parser_tokens = initiate_tokens_structs();
+    // init_pair_grammer();
+
+    // init_object_grammer();
+    struct parser_tokens *parser_tokens = 0x00;
+    struct global_grammer_stack *global_stack = init_global_stack();
     struct parsed_list *parsing_list = initiate_parsedlist_struct();
     struct inprogress_parsing *track_parsing = pmalloc(sizeof(struct inprogress_parsing));
     if (!track_parsing)
@@ -317,14 +388,14 @@ int commands_parser()
         */
         if (bytes < 0)
         {
-            perror("Error while reading from cmd file");
+            perror("Error while reading from cmd file\n");
             close(cmd_fd);
             return -CMD_FILE;
         }
 
         if (bytes == 0)
         {
-            printf("CMD file completed");
+            printf("CMD file completed\n");
             close(cmd_fd);
             break;
         }
@@ -335,7 +406,11 @@ int commands_parser()
         // chunk_buf[FILE_BUF_SIZE] = 0;
         command_reader(chunk_buf, track_parsing, parser_tokens, parsing_list);
     }
-    loop_the_parsed_list(parsing_list);
+    // loop_the_parsed_list(parsing_list);
+    // printf("lenght of list is %d\n", parsing_list->length);
+    // printf("traverse completed deleting node\n");
+    // printf("lenght of list is %d\n", parsing_list->length);
+
     // Close the file
     close(cmd_fd);
 

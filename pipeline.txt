@@ -1,0 +1,49 @@
+
+static struct token_grammer *token_grammer_generator(const char token)
+{
+    struct token_grammer *token_grammer = pmalloc(sizeof(struct token_grammer));
+    if (!token_grammer)
+    {
+        return NULL;
+    }
+    token_grammer->token = token;
+    token_grammer->next = NULL;
+    return token_grammer;
+}
+
+struct pair_grammer *init_pair_grammer()
+{
+    // Gnerate new memory for pair grammer list.
+    struct pair_grammer *pair_grammer = pmalloc(sizeof(struct pair_grammer));
+    // Initiate pair grammer to avoid unpredictable behaviour
+    pair_grammer->head = NULL;
+    pair_grammer->tail = NULL;
+
+    if (!pair_grammer)
+    {
+        return NULL;
+    }
+
+    char grammer[3] = {TYPE_CHUNK_HEX, COLON_CHARACTER, TYPE_CHUNK_HEX};
+    for (short i = 0; i < 3; i++)
+    {
+        struct token_grammer *token_grammer = token_grammer_generator(grammer[i]);
+        if (pair_grammer->head == NULL)
+        {
+            pair_grammer->head = token_grammer;
+            pair_grammer->tail = token_grammer;
+        }
+
+        pair_grammer->tail->next = token_grammer;
+        pair_grammer->tail = token_grammer;
+    }
+
+    // struct token_grammer *curr = pair_grammer->head;
+    // while (curr != NULL)
+    // {
+    //     printf("char is %c\n", curr->token);
+    //     curr = curr->next;
+    // }
+
+    return pair_grammer;
+}

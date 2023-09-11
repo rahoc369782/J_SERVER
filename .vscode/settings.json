@@ -13,6 +13,8 @@
     "commands.h": "c",
     "parser.h": "c",
     "commands_new.h": "c",
-    "customstring.h": "c"
+    "customstring.h": "c",
+    "tokenization.h": "c",
+    "parser_config.h": "c"
   }
 }

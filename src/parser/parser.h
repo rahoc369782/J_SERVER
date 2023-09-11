@@ -1,6 +1,6 @@
 #ifndef PARSER_H
 
 #define PARSER_H
-void parser_main();
+void init_parser();
 
 #endif

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "parser.h"
-#include "./commands/commands_new.h"
+#include "./tokenization/tokenization.h"
 
 /*
 
@@ -14,7 +14,7 @@ PIE is using serializing protocol. Sequence with proper data and input matter.
 Following commands are allowing for PIEv.0.0.1
 
 */
-void parser_main()
+void init_parser()
 {
     printf("Initializing parser\n");
     commands_parser();

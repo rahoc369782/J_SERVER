@@ -1,5 +1,5 @@
 # List of source files
-FILES = ./build/parser/symboltable/symboltable.o ./build/parser/commands/commands_new.o  ./build/parser/parser.o ./build/utils/common/customstring.o ./build/utils/heap/h_usage.o ./build/utils/memory/memory.o ./build/c_client.o ./build/p_poll.o ./build/string.o ./build/p_server.o ./build/pie.o
+FILES = ./build/parser/grammer/grammer.o ./build/parser/tokenization/tokenization.o  ./build/parser/parser.o ./build/utils/common/customstring.o ./build/utils/heap/h_usage.o ./build/utils/memory/memory.o ./build/c_client.o ./build/p_poll.o ./build/string.o ./build/p_server.o ./build/pie.o
 FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
 # Default target
 all : pie
@@ -8,14 +8,18 @@ all : pie
 pie : $(FILES)	
 	gcc -std=c99 $(FILES) -o ./bin/pie.bin
 
+
+./build/parser/grammer/grammer.o : ./src/parser/grammer/grammer.c
+	gcc -c -std=c99 ./src/parser/grammer/grammer.c -o ./build/parser/grammer/grammer.o
+
 ./build/parser/symboltable/symboltable.o : ./src/parser/symboltable/symboltable.c
 	gcc -c -std=c99 ./src/parser/symboltable/symboltable.c -o ./build/parser/symboltable/symboltable.o
 
-./build/parser/commands/commands_new.o : ./src/parser/commands/commands_new.c
-	gcc -c -std=c99 ./src/parser/commands/commands_new.c -o ./build/parser/commands/commands_new.o
+./build/parser/tokenization/tokenization.o : ./src/parser/tokenization/tokenization.c
+	gcc -c -std=c99 ./src/parser/tokenization/tokenization.c -o ./build/parser/tokenization/tokenization.o
 
-./build/parser/commands/commands.o : ./src/parser/commands/commands.c
-	gcc -c -std=c99 ./src/parser/commands/commands.c -o ./build/parser/commands/commands.o
+./build/parser/tokenization/commands.o : ./src/parser/tokenization/commands.c
+	gcc -c -std=c99 ./src/parser/tokenization/commands.c -o ./build/parser/tokenization/commands.o
 
 ./build/parser/parser.o : ./src/parser/parser.c
 	gcc -c -std=c99 ./src/parser/parser.c -o ./build/parser/parser.o
