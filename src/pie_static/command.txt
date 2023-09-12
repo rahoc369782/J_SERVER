@@ -1,2 +1,5 @@
 [
-{ code:S name:SAVE desc:Save. err:INVALID errcode:0 succ:SAVED succode:1 secure:y }{ code:A name:AUTHORIZATION desc:Auth command to verify clients err:AUTHORIZATION FAILED errcode:0 succ:VERIFIED succode:1 secure:n }]
+{ code:S name:SAVE desc:Sa err:INVALID errcode:0 succ:SAVED succode:1 secure:y }
+{ code:A name:AUTHORIZATION desc:Auth err:AUTHORIZATION errcode:0 succ:VERIFIED succode:1 secure:n }
+{ code:R name:RETRIEVE desc:Retrie err:RETRIVAL errcode:0 succ:RETRIEVED succode:1 secure:y }
+]

@@ -2,7 +2,7 @@
 #define COMMANDS_H
 
 #define CMD_CONFIG "src/pie_static/command.txt"
-#define FILE_BUF_SIZE 50
+#define FILE_BUF_SIZE 150
 #define MAX_TOKENS 10
 #define FILE_BUF_SIZE_LOCAL (FILE_BUF_SIZE * 10)
 

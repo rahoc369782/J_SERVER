@@ -13,14 +13,14 @@
 
 struct commands_colle *cmds;
 
-static struct inprogress_parsing
+struct inprogress_parsing
 {
     struct command *command;
     char last_chunk[FILE_BUF_SIZE_LOCAL];
     int last_pos_in_chunk;
 };
 
-static struct parser_tokens
+struct parser_tokens
 {
     char *tokens;
 };
@@ -112,7 +112,10 @@ int generate_node_for_tokens(char *token, unsigned short type, struct parsed_lis
 
 int check_token_insymbol_table(struct parser_tokens *token_table, char s)
 {
-    // Symbols which we required for grammer validation.
+    // Symbols which we required for grammer validation and tokenization process.
+    // Each token itself is a token and text chunk encountered before special token
+    // encountered are also considered as TYPE_TEXT_CHUNK token.
+
     char symbolArray[] = {
         LEFT_SQUARE_BRACKET,
         LEFT_CURLY_BRACE,
@@ -381,6 +384,8 @@ int commands_parser()
     while (bytes > 0)
     {
         char chunk_buf[FILE_BUF_SIZE]; // Buffer to store read data
+
+        // overwrite bytes to how much bytes actually reads
         bytes = read(cmd_fd, chunk_buf, FILE_BUF_SIZE);
 
         /*
@@ -403,6 +408,7 @@ int commands_parser()
         /*
             If data is available to process just process it with below function.
         */
+
         // chunk_buf[FILE_BUF_SIZE] = 0;
         command_reader(chunk_buf, track_parsing, parser_tokens, parsing_list);
     }

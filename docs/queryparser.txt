@@ -1,0 +1,13 @@
+******************************************* TOKENIZATION PROCESS ******************************************
+
+- Token Defination for PIE QUERY PARSER :
+  - : -> Divider 
+  - _ -> Space
+  - - -> Dash
+  - NULL -> NULL token
+
+******************************************* SYNTAX AND GRAMMER VALIDATION **********************************
+
+{cmd:"s" type:"1" msg:"Hello World"}
+
+S This i just testing command for checking.

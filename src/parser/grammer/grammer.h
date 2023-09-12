@@ -6,7 +6,7 @@ struct stack_item
 {
     unsigned short type;
     struct stack_item *next;
-};
+};  
 
 struct global_grammer_stack
 {

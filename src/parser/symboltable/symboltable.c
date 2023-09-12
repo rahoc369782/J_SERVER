@@ -69,6 +69,7 @@ struct symbol *search(int key)
 
     return NULL;
 }
+
 int check_token_incontext_table(unsigned short type, char s)
 {
     char *tokens;
@@ -90,6 +91,7 @@ int check_token_incontext_table(unsigned short type, char s)
     };
     return 0;
 }
+
 void insert(struct symbol *symbol, int hash, int size)
 {
     // move in array until an empty or deleted cell
