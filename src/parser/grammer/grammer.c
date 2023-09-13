@@ -61,7 +61,7 @@ static struct parsed_node *start_context_grammer(struct parsed_node *parsed_node
 
     if (parsed_node->type != NEWLINE_CHARACTER)
     {
-        printf("encountersss error %d \n",parsed_node->type);
+        printf("encountersss error %d \n", parsed_node->type);
         return parsed_node;
     }
 
@@ -110,7 +110,7 @@ static struct parsed_node *object_context_grammer(struct parsed_node *parsed_nod
     // printf("called object context\n");
     if (parsed_node->type != SPACE_CHARACTER)
     {
-        printf("encounter error %d \n",parsed_node->type);
+        printf("encounter error %d \n", parsed_node->type);
         return parsed_node;
     }
 
@@ -139,10 +139,10 @@ static struct parsed_node *object_context_grammer(struct parsed_node *parsed_nod
         unsigned short pop_ele = stack_ops(3, NULL); // check for opening square bracket.
         if (pop_ele == LEFT_CURLY_BRACE)
         {
-            printf("p %p\n",parsed_node->next);
+            printf("p %p\n", parsed_node->next);
             return start_context_grammer(parsed_node->next);
         }
-        printf("stakc err %d",pop_ele);
+        printf("stakc err %d", pop_ele);
         return parsed_node;
     }
     default:
