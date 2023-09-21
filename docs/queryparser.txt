@@ -4,10 +4,34 @@
   - : -> Divider 
   - _ -> Space
   - - -> Dash
+  - [ -> Open square
+  - ] -> Closing square
+  - ( -> Open bracket
+  - ) -> Closing bracket
+  - " -> double quotes
+  - & -> AND operator
+  - | -> OR operator
+  - > -> Greater than
+  - < -> Less than
+  
   - NULL -> NULL token
 
 ******************************************* SYNTAX AND GRAMMER VALIDATION **********************************
 
 {cmd:"s" type:"1" msg:"Hello World"}
 
-S This i just testing command for checking.
+solution which is written in python or golang and it should be in passed stage.
+-> moment query : 'SOLUTION AND (PYTHON OR GOLANG) AND PASSED'
+
+-c = command indentifier
+-b = moment or document body indentifier
+-q = query identifier which will fetch docs
+-r = range indentifier
+-n = count identifier (counts the summation of tags passed)
+
+
+-c s -b "This i just testing command for checking." -t [tag1 tag2 tag3 tag4:300 tag5] -o [secure]
+
+-c g -q [SOLUTION & (PYTHON | GOLANG) & PASSED] -r [129291212 TO 12212121]
+
+-c g -q [SOLUTION & (PYTHON | GOLANG) & (PASSED > 300)] -r [129291212 TO 12212121] -n [PASSED]
