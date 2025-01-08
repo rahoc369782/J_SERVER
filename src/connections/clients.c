@@ -53,7 +53,7 @@ int *c_clinet()
             if (connect(sockfd, (SA *)&servaddr, sizeof(servaddr)) != 0)
             {
                 printf("connection with the server failed...\n");
-                exit(0);
+               //  exit(0);
             }
             else
             {

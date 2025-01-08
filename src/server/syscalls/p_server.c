@@ -53,7 +53,7 @@ struct sockaddr_in *get_serverobj()
     memset(server, 0, sizeof(struct sockaddr_in));
     server->sin_family = AF_INET;
     server->sin_port = htons(PIE_PORT);
-    if (inet_pton(AF_INET, "172.24.25.18", &server->sin_addr) <= 0)
+    if (inet_pton(AF_INET, "192.168.0.104", &server->sin_addr) <= 0)
     {
         perror("Failed to set IP address for server object");
         free(server);

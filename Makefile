@@ -1,63 +1,90 @@
+# ifdef CC
+# CC := $(shell which $(CC))
+# else
+# CC := $(shell which gcc)
+# endif
+
+# ifeq ($(findstring clang, $(CC)), clang)
+FLAGS = -g -ffreestanding -fomit-frame-pointer -finline-functions -Wno-unused-function \
+        -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter \
+        -nostdlib -nodefaultlibs -Wall -O0 -Iinc
+# else
+# FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops \
+#         -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function \
+#         -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter \
+#         -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
+# endif
+
 # List of source files
-FILES = ./build/parser/grammer/grammer.o ./build/parser/tokenization/tokenization.o  ./build/parser/parser.o ./build/utils/common/customstring.o ./build/utils/heap/h_usage.o ./build/utils/memory/memory.o ./build/c_client.o ./build/p_poll.o ./build/string.o ./build/p_server.o ./build/pie.o
-FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-function -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -nostdlib -nostartfiles -nodefaultlibs -Wall -O0 -Iinc
+FILES = ./build/parser/grammer/grammer.o ./build/parser/tokenization/tokenization.o \
+        ./build/parser/parser.o ./build/utils/common/customstring.o \
+        ./build/utils/heap/h_usage.o ./build/utils/memory/memory.o \
+        ./build/c_client.o ./build/p_poll.o ./build/string.o \
+        ./build/p_server.o ./build/pie.o
+
 # Default target
-all : pie
+all: pie
 
 # Compile the final executable
-pie : $(FILES)	
+pie: $(FILES)
 	gcc -std=c99 $(FILES) -o ./bin/pie.bin
 
+# Object file rules with directory creation
+./build/parser/grammer/grammer.o: ./src/parser/grammer/grammer.c
+	mkdir -p $(dir $@)
+	gcc -c -std=c99 $< -o $@
 
-./build/parser/grammer/grammer.o : ./src/parser/grammer/grammer.c
-	gcc -c -std=c99 ./src/parser/grammer/grammer.c -o ./build/parser/grammer/grammer.o
+./build/parser/symboltable/symboltable.o: ./src/parser/symboltable/symboltable.c
+	mkdir -p $(dir $@)
+	gcc -c -std=c99 $< -o $@
 
-./build/parser/symboltable/symboltable.o : ./src/parser/symboltable/symboltable.c
-	gcc -c -std=c99 ./src/parser/symboltable/symboltable.c -o ./build/parser/symboltable/symboltable.o
+./build/parser/tokenization/tokenization.o: ./src/parser/tokenization/tokenization.c
+	mkdir -p $(dir $@)
+	gcc -c -std=c99 $< -o $@
 
-./build/parser/tokenization/tokenization.o : ./src/parser/tokenization/tokenization.c
-	gcc -c -std=c99 ./src/parser/tokenization/tokenization.c -o ./build/parser/tokenization/tokenization.o
+./build/parser/tokenization/commands.o: ./src/parser/tokenization/commands.c
+	mkdir -p $(dir $@)
+	gcc -c -std=c99 $< -o $@
 
-./build/parser/tokenization/commands.o : ./src/parser/tokenization/commands.c
-	gcc -c -std=c99 ./src/parser/tokenization/commands.c -o ./build/parser/tokenization/commands.o
+./build/parser/parser.o: ./src/parser/parser.c
+	mkdir -p $(dir $@)
+	gcc -c -std=c99 $< -o $@
 
-./build/parser/parser.o : ./src/parser/parser.c
-	gcc -c -std=c99 ./src/parser/parser.c -o ./build/parser/parser.o
+./build/utils/common/customstring.o: ./src/utils/common/customstring.c
+	mkdir -p $(dir $@)
+	gcc -c -std=c99 $< -o $@
 
-./build/utils/common/customstring.o : ./src/utils/common/customstring.c
-	gcc -c -std=c99 ./src/utils/common/customstring.c -o ./build/utils/common/customstring.o
+./build/utils/heap/h_usage.o: ./src/utils/heap_usage/h_usage.c
+	mkdir -p $(dir $@)
+	gcc -c -std=c99 $< -o $@
 
-# Compile h_usage.o
-./build/utils/heap/h_usage.o : ./src/utils/heap_usage/h_usage.c
-	gcc -c -std=c99 ./src/utils/heap_usage/h_usage.c -o ./build/utils/heap/h_usage.o
+./build/utils/memory/memory.o: ./src/utils/memory/p_memory.c
+	mkdir -p $(dir $@)
+	gcc -c -std=c99 $< -o $@
 
-# Compile h_usage.o
-./build/utils/memory/memory.o : ./src/utils/memory/p_memory.c
-	gcc -c -std=c99 ./src/utils/memory/p_memory.c -o ./build/utils/memory/memory.o
+./build/c_client.o: ./src/connections/clients.c
+	mkdir -p $(dir $@)
+	gcc -c -std=c99 $< -o $@
 
-# Compile client.o
-./build/c_client.o : ./src/connections/clients.c
-	gcc -c -std=c99 ./src/connections/clients.c -o ./build/c_client.o
+./build/p_poll.o: ./src/p_poll/p_poll.c
+	mkdir -p $(dir $@)
+	gcc -c $(FLAGS) -std=c99 $< -o $@
 
-# Compile epoll.o
-./build/p_poll.o : ./src/p_poll/p_poll.c
-	gcc -c $(FLAGS) -std=c99 ./src/p_poll/p_poll.c -o ./build/p_poll.o
+./build/string.o: ./src/server/string/string.c
+	mkdir -p $(dir $@)
+	gcc -c $(FLAGS) -std=c99 $< -o $@
 
-# Compile p_server.o
-./build/string.o : ./src/server/string/string.c
-	gcc -c $(FLAGS) -std=c99 ./src/server/string/string.c -o ./build/string.o
+./build/p_server.o: ./src/server/syscalls/p_server.c
+	mkdir -p $(dir $@)
+	gcc -c $(FLAGS) -std=c99 $< -o $@
 
-# Compile p_server.o
-./build/p_server.o : ./src/server/syscalls/p_server.c
-	gcc -c $(FLAGS) -std=c99 ./src/server/syscalls/p_server.c -o ./build/p_server.o
-
-# Compile pie.o
-./build/pie.o : ./src/pie.c
-	gcc -c $(FLAGS) -std=c99 ./src/pie.c -o ./build/pie.o
+./build/pie.o: ./src/pie.c
+	mkdir -p $(dir $@)
+	gcc -c $(FLAGS) -std=c99 $< -o $@
 
 # Clean build directory
-clean : 
-	rm -rf ${FILES}
+clean:
+	rm -rf $(FILES)
 	cp -r ./bin ./binback
 	rm -rf ./bin/*
 

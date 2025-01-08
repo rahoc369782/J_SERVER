@@ -17,7 +17,9 @@ int main(int args, char *agrv[])
         printf("Minimum three arguments expected");
         return -EARGS;
     };
+
     init_parser();
+/*
     int pie_usage = initiate_pieh_calc();
     if (pie_usage < 0)
     {
@@ -42,5 +44,6 @@ int main(int args, char *agrv[])
         printf("server creation failed");
         return res;
     }
+*/
     return PIE_OK;
 }
